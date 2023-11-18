@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { glob } from 'glob';
 import * as unzipper from 'unzipper';
 import argsParser from 'args-parser';
-import { createCountMap, scanArchive } from './lib.js';
+import { ScanResult, createCountMap, formatScanResults, scanArchive } from './lib.js';
 
 const args = argsParser(process.argv);
 
@@ -23,27 +23,23 @@ async function main() {
 	
 	console.log("searching in " + files.length + " .3mf files for property '"+configFlagName+"'")
 	
-	const extractedData: string[] = [];
+	const fileStats: ScanResult[] = [];
 	
 	for(let index=0; index < limit && index < files.length; index++) {
 		const fullPath = path.join(basedir, files[index]);
-		const zip = fs.createReadStream(fullPath).pipe(unzipper.Parse({forceStream: true}));
 	
-		const scanResponse = await scanArchive(zip, propRegex);
+		const scanResponse = await scanArchive(fullPath, propRegex);
 	
 		if(scanResponse.success === false) {
 			console.log('could not find property within file '+files[index])
 		} else {
-			extractedData.push(scanResponse.data)
+			fileStats.push(scanResponse)
 		}
 	}
 	
-	const dataCountMap = createCountMap(extractedData);
-	
-	console.log(dataCountMap)
-	
+	const result = formatScanResults(fileStats);
+	console.dir(result)
 	
 }
 
 main()
-// console.log(propRegex.toString())

@@ -4,7 +4,8 @@
     "moduleResolution": "node",
     "outDir": "dist",
     "rootDir": "src",
-    "target": "es2022"
+    "target": "es2022",
+	"allowSyntheticDefaultImports": true,
   },
   "include": [
     "src/*"
